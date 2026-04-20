@@ -12,3 +12,7 @@
 4. Commit 4 Reflection notes
     - new route, `GET /sleep HTTP/1.1`, that pauses for 10 seconds before returning the normal `hello.html` page. This simulates a slow request on purpose.
     - The important observation is that the server is still single-threaded. It accepts one incoming stream, calls `handle_connection`, and stays inside that function until the request is completely finished. When `/sleep` is requested, the same thread is forced to wait during `thread::sleep(Duration::from_secs(10))`.
+
+5. Commit 5 Reflection notes
+    - The multithreaded version keeps the same request handling logic, but now the main thread no longer does all the work by itself. Instead, it accepts incoming connections and submits each one to a `ThreadPool`.
+    - The `ThreadPool` owns a fixed number of worker threads. Each worker waits for a job from a shared channel, and `execute` sends a boxed closure into that queue. This means the server can reuse a small set of threads instead of creating a brand new thread for every request.
