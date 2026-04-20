@@ -8,3 +8,7 @@
     - Changed `handle_connection`; reads only the first request line, checks whether the browser asked for `GET / HTTP/1.1`. If the request is for `/`, the server sends a `200 OK` response & sends `hello.html`. else, the server switches to `404 NOT FOUND` and sends `404.html`.
     - Refactoring is needed because both branches follow the same pattern: choose a status line, choose a file, read the file, compute the content length, and build the final HTTP response. By storing the differences as `(status_line, filename)`, the repeated response-building code only appears once, which makes the function easier to read and easier to extend later.
     - Screenshot of my Milestone 3 error page with my own message: ![Commit 3 screen capture](/images/commit3.png)
+
+4. Commit 4 Reflection notes
+    - new route, `GET /sleep HTTP/1.1`, that pauses for 10 seconds before returning the normal `hello.html` page. This simulates a slow request on purpose.
+    - The important observation is that the server is still single-threaded. It accepts one incoming stream, calls `handle_connection`, and stays inside that function until the request is completely finished. When `/sleep` is requested, the same thread is forced to wait during `thread::sleep(Duration::from_secs(10))`.
